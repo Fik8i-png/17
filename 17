@@ -1,0 +1,84 @@
+-- Wait for character to load
+repeat wait() until game.Players.LocalPlayer.Character
+local player = game.Players.LocalPlayer
+local character = player.Character
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Find Ball & Goal
+function getBall()
+    return workspace:FindFirstChild("Ball")  -- Update if needed
+end
+
+function getOpponentGoal()
+    return workspace:FindFirstChild("OpponentGoal")  -- Update if needed
+end
+
+-- Power Shot (Guaranteed Goal)
+function Pth3Shot()
+    local ball = getBall()
+    local opponentGoal = getOpponentGoal()
+
+    if ball and opponentGoal then
+        -- Instantly move the ball inside the goal
+        ball.CFrame = CFrame.new(opponentGoal.Position)
+
+        -- Play explosion sound
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://130766856"  
+        sound.Parent = ball
+        sound:Play()
+    else
+        warn("Ball or Goal not found!")
+    end
+end
+
+-- Dribbling (50m Smooth Teleport)
+function Pth3Dribble()
+    local direction = humanoidRootPart.CFrame.LookVector
+    local newPosition = humanoidRootPart.Position + direction * 50
+
+    -- Force teleport (fixes rollback)
+    character:SetPrimaryPartCFrame(CFrame.new(newPosition))
+
+    -- Blue Aura Effect
+    local aura = Instance.new("Part")
+    aura.Shape = Enum.PartType.Ball
+    aura.Size = Vector3.new(6, 6, 6)
+    aura.Position = newPosition
+    aura.Anchored = true
+    aura.CanCollide = false
+    aura.Color = Color3.fromRGB(0, 0, 255)
+    aura.Material = Enum.Material.Neon
+    aura.Parent = workspace
+
+    -- Play Neymar sound
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://130766856"
+    sound.Parent = character
+    sound:Play()
+
+    -- Temporary Speed Boost
+    character.Humanoid.WalkSpeed = 50
+    wait(1)
+    character.Humanoid.WalkSpeed = 16  
+
+    game:GetService("Debris"):AddItem(aura, 1.5)  
+end
+
+-- UI Setup (Correctly Above Flow Meter)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local button1 = Instance.new("TextButton")
+button1.Size = UDim2.new(0.2, 0, 0.05, 0)
+button1.Position = UDim2.new(0.4, 0, 0.55, 0)  
+button1.Text = "Pth3 Shot"
+button1.Parent = ScreenGui
+button1.MouseButton1Click:Connect(Pth3Shot)
+
+local button2 = Instance.new("TextButton")
+button2.Size = UDim2.new(0.2, 0, 0.05, 0)
+button2.Position = UDim2.new(0.4, 0, 0.6, 0)  
+button2.Text = "Pth3 Dribble"
+button2.Parent = ScreenGui
+button2.MouseButton1Click:Connect(Pth3Dribble)
